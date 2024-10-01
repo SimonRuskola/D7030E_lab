@@ -111,7 +111,10 @@ main (int argc, char *argv[])
   wifiChannel->SetPropagationDelayModel (delayModel); // install propagation delay model
   
 
-  Config::SetDefault ("ns3::WifiRemoteStationManager::RtsCtsThreshold", StringValue ("2200"));
+ 
+ 
+  Config::SetDefault("ns3::WifiRemoteStationManager::RtsCtsThreshold", StringValue("2200"));  // RTS/CTS disabled
+  
  // disable fragmentation
   Config::SetDefault ("ns3::WifiRemoteStationManager::FragmentationThreshold", StringValue ("2200"));
   
@@ -143,19 +146,21 @@ main (int argc, char *argv[])
 
 
 /////////////////////////////Deployment///////////////////////////// 
+      double d_1 = 251.18864315;
+      //double d_1 = 10;
       MobilityHelper mobility;
       Ptr<ListPositionAllocator> positionAlloc = CreateObject<ListPositionAllocator> ();
       //positionAlloc->Add (Vector (0.0, 0.0, 1.0));
       //positionAlloc->Add (Vector (502.377286302, 0.0, 1.0));
-      positionAlloc->Add (Vector (0.0, 0.0, 1.0));
-      positionAlloc->Add (Vector (502.37728630, 0.0, 1.0));
+      positionAlloc->Add (Vector (-d_1, 0.0, 1.0));
+      positionAlloc->Add (Vector (d_1, 0.0, 1.0));
       
 
       mobility.SetPositionAllocator (positionAlloc);
       mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
       mobility.Install (stas);
       Ptr<ListPositionAllocator> positionAllocAP = CreateObject<ListPositionAllocator> ();
-      positionAllocAP->Add (Vector (251.18864315, 0.0, 1.0));
+      positionAllocAP->Add (Vector (0, 0.0, 1.0));
       //positionAllocAP->Add (Vector (251.188643151, 0.0, 1.0));
       mobility.SetPositionAllocator (positionAllocAP);
       mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
@@ -180,28 +185,43 @@ main (int argc, char *argv[])
 /////////////////////////////Application part///////////////////////////// 
    
   uint16_t dlPort = 1000;
+  uint16_t dlPort2 = 2000;
    
    ApplicationContainer onOffApp;
+   ApplicationContainer onOffApp2;
 
-    OnOffHelper onOffHelper("ns3::UdpSocketFactory", InetSocketAddress(wifiInterfaces.GetAddress (1), dlPort)); //OnOffApplication, UDP traffic, Please refer the ns-3 API
+    OnOffHelper onOffHelper("ns3::UdpSocketFactory", InetSocketAddress(wifiAPInterface.GetAddress (0), dlPort)); //OnOffApplication, UDP traffic, Please refer the ns-3 API
     onOffHelper.SetAttribute("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=5000]"));
     onOffHelper.SetAttribute("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
     onOffHelper.SetAttribute("DataRate", DataRateValue(DataRate("20.0Mbps"))); //Traffic Bit Rate
     onOffHelper.SetAttribute("PacketSize", UintegerValue(1000));
+
+    
+    OnOffHelper onOffHelper2("ns3::UdpSocketFactory", InetSocketAddress(wifiAPInterface.GetAddress (0), dlPort2)); //OnOffApplication, UDP traffic, Please refer the ns-3 API
+    onOffHelper2.SetAttribute("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=5000]"));
+    onOffHelper2.SetAttribute("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+    onOffHelper2.SetAttribute("DataRate", DataRateValue(DataRate("20.0Mbps"))); //Traffic Bit Rate
+    onOffHelper2.SetAttribute("PacketSize", UintegerValue(1000));
+    
     onOffApp.Add(onOffHelper.Install(stas.Get(0)));  
-    onOffApp.Add(onOffHelper.Install(stas.Get(1)));  
+    onOffApp2.Add(onOffHelper2.Install(stas.Get(1)));  
     
  
     
     //Receiver socket on ap 1
   TypeId tid = TypeId::LookupByName ("ns3::UdpSocketFactory");
   Ptr<Socket> recvSink = Socket::CreateSocket (ap.Get (0), tid);
-  InetSocketAddress local = InetSocketAddress (wifiInterfaces.GetAddress (1), dlPort);
+  Ptr<Socket> recvSink2 = Socket::CreateSocket (ap.Get (0), tid);
+  InetSocketAddress local = InetSocketAddress (wifiAPInterface.GetAddress (0), dlPort);
+  InetSocketAddress local2 = InetSocketAddress (wifiAPInterface.GetAddress (0), dlPort2);
   bool ipRecvTos = true;
   recvSink->SetIpRecvTos (ipRecvTos);
+  recvSink2->SetIpRecvTos (ipRecvTos);
   bool ipRecvTtl = true;
   recvSink->SetIpRecvTtl (ipRecvTtl);
+  recvSink2->SetIpRecvTtl (ipRecvTtl);
   recvSink->Bind (local);
+  recvSink2->Bind (local2);
 
 ////////////////////////////////////////////////////////////
 
