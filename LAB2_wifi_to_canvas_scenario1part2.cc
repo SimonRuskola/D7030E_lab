@@ -190,25 +190,25 @@ main (int argc, char *argv[])
    
    ApplicationContainer onOffApp;
 
-    OnOffHelper onOffHelper("ns3::UdpSocketFactory", InetSocketAddress(wifiInterfaces.GetAddress (1), dlPort)); //OnOffApplication, UDP traffic, Please refer the ns-3 API
+    OnOffHelper onOffHelper("ns3::UdpSocketFactory", InetSocketAddress(wifiInterfaces.GetAddress (2), dlPort)); //OnOffApplication, UDP traffic, Please refer the ns-3 API
     onOffHelper.SetAttribute("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=5000]"));
     onOffHelper.SetAttribute("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
     onOffHelper.SetAttribute("DataRate", DataRateValue(DataRate("20.0Mbps"))); //Traffic Bit Rate
     onOffHelper.SetAttribute("PacketSize", UintegerValue(1000));
     onOffApp.Add(onOffHelper.Install(stas.Get(0)));  
 
-    OnOffHelper onOffHelper2("ns3::UdpSocketFactory", InetSocketAddress(wifiInterfaces.GetAddress (1), dlPort2)); //OnOffApplication, UDP traffic, Please refer the ns-3 API
+    OnOffHelper onOffHelper2("ns3::UdpSocketFactory", InetSocketAddress(wifiInterfaces.GetAddress (3), dlPort2)); //OnOffApplication, UDP traffic, Please refer the ns-3 API
     onOffHelper2.SetAttribute("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=5000]"));
     onOffHelper2.SetAttribute("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
     onOffHelper2.SetAttribute("DataRate", DataRateValue(DataRate("20.0Mbps"))); //Traffic Bit Rate
     onOffHelper2.SetAttribute("PacketSize", UintegerValue(1000));
-    onOffApp.Add(onOffHelper2.Install(stas.Get(2)));  
+    onOffApp.Add(onOffHelper2.Install(stas.Get(1)));  
  
     
   //Receiver socket on Sta2
   TypeId tid = TypeId::LookupByName ("ns3::UdpSocketFactory");
-  Ptr<Socket> recvSink = Socket::CreateSocket (stas.Get (3), tid);
-  InetSocketAddress local = InetSocketAddress (wifiInterfaces.GetAddress (1), dlPort);
+  Ptr<Socket> recvSink = Socket::CreateSocket (stas.Get (2), tid);
+  InetSocketAddress local = InetSocketAddress (wifiInterfaces.GetAddress (2), dlPort);
   bool ipRecvTos = true;
   recvSink->SetIpRecvTos (ipRecvTos);
   bool ipRecvTtl = true;
@@ -216,8 +216,8 @@ main (int argc, char *argv[])
   recvSink->Bind (local);
 
   //Receiver socket on Sta4
-  Ptr<Socket> recvSink4 = Socket::CreateSocket (stas.Get (1), tid);
-  InetSocketAddress local4 = InetSocketAddress (wifiInterfaces.GetAddress (1), dlPort2);
+  Ptr<Socket> recvSink4 = Socket::CreateSocket (stas.Get (3), tid);
+  InetSocketAddress local4 = InetSocketAddress (wifiInterfaces.GetAddress (3), dlPort2);
   recvSink4->SetIpRecvTos (ipRecvTos);
   recvSink4->SetIpRecvTtl (ipRecvTtl);
   recvSink4->Bind (local4);
