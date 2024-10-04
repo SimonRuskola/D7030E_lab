@@ -131,7 +131,10 @@ main (int argc, char *argv[])
   //TODO
   // Create network devices
   // Attach devices and all parts of WiFi system and Nodes
-  mac.SetType ("ns3::StaWifiMac", "Ssid", SsidValue (ssid), "ActiveProbing", BooleanValue (false));
+  
+  //mac.SetType ("ns3::StaWifiMac", "Ssid", SsidValue (ssid), "ActiveProbing", BooleanValue (false));
+  mac.SetType ("ns3::AdhocWifiMac");
+
   NetDeviceContainer staDevices;
   staDevices = wifi.Install (phy, mac, stas);
 
@@ -202,59 +205,15 @@ main (int argc, char *argv[])
   recvSink->SetIpRecvTtl (ipRecvTtl);
   recvSink->Bind (local);
 
-
-///////////////USE WHEN WORKING WITH TCP TO FILL IN ARP TABLES//////////////////////
-/*
-  UdpEchoServerHelper echoServer (9);
-
-  ApplicationContainer serverApps = echoServer.Install (wifiStaNodes.Get (nWifi-1));
-  serverApps.Start (Seconds (2.0));
-  serverApps.Stop (Seconds (6.0));
-
-  UdpEchoClientHelper echoClient (wifiInterfaces.GetAddress (nWifi-1), 9);
-  echoClient.SetAttribute ("MaxPackets", UintegerValue (100));
-  echoClient.SetAttribute ("Interval", TimeValue (Seconds (1.0)));
-  echoClient.SetAttribute ("PacketSize", UintegerValue (100));
-
-  ApplicationContainer clientApps = echoClient.Install (wifiStaNodes.Get (0));
-  clientApps.Start (Seconds (2.0));
-  clientApps.Stop (Seconds (6.0));
-*/
-/////////////////////////////////////////////////////////////////////////////////
-
-/////////////////////TCP app///////////////////////////
-/*
-  uint16_t port = 50000;
-  Address sinkLocalAddress (InetSocketAddress (Ipv4Address::GetAny (), port));
-  PacketSinkHelper sinkHelper ("ns3::TcpSocketFactory", sinkLocalAddress);
-  ApplicationContainer sinkApp = sinkHelper.Install (wifiStaNodes.Get (nWifi-1));
-  sinkApp.Start (Seconds (10.0));
-  sinkApp.Stop (Seconds (100.0));
-  // Create the OnOff applications to send TCP to the server (client part)
-  OnOffHelper clientHelper ("ns3::TcpSocketFactory", Address ());
-  clientHelper.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1]"));
-  clientHelper.SetAttribute("DataRate", DataRateValue(DataRate("10.0Mbps"))); //Traffic Bit Rate
-  clientHelper.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-  ApplicationContainer clientApp;
-      AddressValue clientAddress(InetSocketAddress (wifiInterfaces.GetAddress (nWifi-1), port));
-      clientHelper.SetAttribute ("Remote", clientAddress);
-      clientApp=clientHelper.Install (wifiStaNodes.Get (0));
-      clientApp.Start (Seconds (10.0));
-      clientApp.Stop (Seconds (100.0));
-*/
-
-////////////////////////////////////////////////////////////
-
-
 /////////////////////////////Application part///////////////////////////// 
 
   Simulator::Stop (Seconds (100.0));
 /////////////////////////////PCAP tracing/////////////////////////////   
-   //TODO 
-   //Enable PCAP tracing for all devices
-   std::string payloadSizeString = std::to_string(payloadSize);
-   std::string nWifiString = std::to_string(nWifi);
-   phy.EnablePcap ("LAB3_WIFI_STA_UDP_nwifi_"+nWifiString+"_payloadSize_"+payloadSizeString, stas, true); 
+  //TODO 
+  //Enable PCAP tracing for all devices
+  std::string payloadSizeString = std::to_string(payloadSize);
+  std::string nWifiString = std::to_string(nWifi);
+  phy.EnablePcap ("LAB3_WIFI_STA_UDP_nwifi_"+nWifiString+"_payloadSize_"+payloadSizeString, stas, true); 
 
   Simulator::Run ();
   Simulator::Destroy ();

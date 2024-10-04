@@ -131,7 +131,8 @@ main (int argc, char *argv[])
   //TODO
   // Create network devices
   // Attach devices and all parts of WiFi system and Nodes
-  mac.SetType ("ns3::StaWifiMac", "Ssid", SsidValue (ssid), "ActiveProbing", BooleanValue (false));
+  //mac.SetType ("ns3::StaWifiMac", "Ssid", SsidValue (ssid), "ActiveProbing", BooleanValue (false));
+  mac.SetType ("ns3::AdhocWifiMac");
   NetDeviceContainer staDevices;
   staDevices = wifi.Install (phy, mac, stas);
 
@@ -181,6 +182,9 @@ main (int argc, char *argv[])
  
 
 ///////////////USE WHEN WORKING WITH TCP TO FILL IN ARP TABLES//////////////////////
+
+  int tcpSegmentSize = payloadSize;
+  Config::SetDefault ("ns3::TcpSocket::SegmentSize", UintegerValue (tcpSegmentSize));
 
   UdpEchoServerHelper echoServer (9);
 
